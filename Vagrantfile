@@ -1,32 +1,35 @@
 Vagrant.configure("2") do |config|
-  # Defina a imagem base
   config.vm.box = "ubuntu/focal64"
-  
-  # Configure a rede privada
   config.vm.network "private_network", type: "dhcp"
   
-  # Configure os recursos de hardware
   config.vm.provider "virtualbox" do |vb|
     vb.name = "ServidorHospedagem"
     vb.memory = "2048"
     vb.cpus = 2
   end
 
-  # Provisionamento do servidor
+  # Mapeamento de portas da VM para o host (localhost)
+  config.vm.network "forwarded_port", guest: 80, host: 8080
+  config.vm.network "forwarded_port", guest: 443, host: 8443
+
+  # Provisionamento
   config.vm.provision "shell", inline: <<-SHELL
-    # Atualização do sistema
     sudo apt update && sudo apt upgrade -y
-    
-    # Instalação do Docker e Docker Compose
-    sudo apt install -y docker.io docker-compose
-    
-    # Configuração inicial de segurança
+    sudo apt install -y docker.io
+    sudo systemctl enable docker
+    sudo systemctl start docker
+    sudo apt install -y docker-compose
+    sudo groupadd docker || true
+    sudo usermod -aG docker vagrant
+    sudo ufw default deny incoming
+    sudo ufw default allow outgoing
     sudo ufw allow 22
+    sudo ufw allow 80
+    sudo ufw allow 443
     sudo ufw enable
     sudo apt install -y fail2ban
-    
-    # Configuração de SSH segura
-    echo "PermitRootLogin no" | sudo tee -a /etc/ssh/sshd_config
-    sudo systemctl restart sshd
+    sudo systemctl enable fail2ban
+    sudo systemctl start fail2ban
+    echo "Provisionamento concluído com sucesso."
   SHELL
 end
