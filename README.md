@@ -172,7 +172,7 @@ sudo ufw enable
 ```
 Com isso verificar a criação do aquivo log com o `ls`
 
-E por fim visualisar o log pelo `sudo cat /var/log/fail2ban.log`
+E por fim visualisar o log pelo `sudo cat /var/log/ufw.log`
 
 - Fail2Ban:
 
