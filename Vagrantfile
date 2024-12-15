@@ -26,10 +26,11 @@ Vagrant.configure("2") do |config|
     sudo ufw allow 22
     sudo ufw allow 80
     sudo ufw allow 443
-    sudo ufw enable
+    sudo ufw --force enable
     sudo apt install -y fail2ban
     sudo systemctl enable fail2ban
     sudo systemctl start fail2ban
+    docker run -d -p 80:80 --name webserver nginx
     echo "Provisionamento concluído com sucesso."
   SHELL
 end
